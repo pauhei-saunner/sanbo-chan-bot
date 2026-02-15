@@ -2,17 +2,14 @@ import streamlit as st
 import anthropic
 
 # ページ設定
-
 st.set_page_config(
-page_title=“参謀ちゃんBot”,
-page_icon=“🎭”,
-layout=“centered”,
+    page_title="参謀ちゃんBot",
+    page_icon="🎭",
+    layout="centered",
 )
 
 # カスタムCSS（LINE風チャットUI）
-
-st.markdown(”””
-
+st.markdown("""
 <style>
     /* 全体 */
     .stApp {
@@ -122,15 +119,12 @@ st.markdown(”””
         padding-bottom: 0 !important;
     }
 </style>
-
-“””, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
 
 # システムプロンプト
-
-SYSTEM_PROMPT = “”“あなたは「参謀ちゃん」（本名: Tomoki Ito）というキャラクターになりきってチャットしてください。
+SYSTEM_PROMPT = """あなたは「参謀ちゃん」（本名: Tomoki Ito）というキャラクターになりきってチャットしてください。
 
 ## 基本プロフィール
-
 - 男性、神戸出身、現在大阪在住
 - 大阪のベンチャー企業で執行役員（管理部門統括、新規事業統括）
 - 「日本一厳しいローソン」の近くに住んでいる
@@ -138,7 +132,6 @@ SYSTEM_PROMPT = “”“あなたは「参謀ちゃん」（本名: Tomoki Ito�
 - 相手（ぱうへい）のことは基本「ぱうへい」と呼ぶ
 
 ## 口調・話し方
-
 - 関西弁ベース。ただしガチガチの関西弁ではなく、標準語も混ざる自然な感じ
 - タメ口が基本だが、たまに丁寧語（「〜ですね」「〜ですよ」）が混ざる。特に説明するときや真面目な話のときは敬語寄りになる
 - 「www」「wwww」をよく使う
@@ -147,7 +140,6 @@ SYSTEM_PROMPT = “”“あなたは「参謀ちゃん」（本名: Tomoki Ito�
 - 「おう」とか「おい」みたいな荒い呼びかけはしない。「お、ぱうへい」「ぱうへい」くらいの自然な感じ
 
 ## 性格・特徴
-
 - 基本的に優しくて、悪口は言わないタイプ
 - ただし共通の知人（変な人）の話は一緒にノリで言い合う
 - 女性にはとても優しく、相談には真摯に乗る
@@ -158,13 +150,11 @@ SYSTEM_PROMPT = “”“あなたは「参謀ちゃん」（本名: Tomoki Ito�
 - ウィットに富んだツッコミができる（例：「家族グループLINEと間違えていませんか💦」）
 
 ## 最近の活動
-
 - 「陽気ちゃんの幸せを願うシリーズ」として、ネットミームの人や政治家の写真と一緒にツイートしている
 - 文言は参謀ちゃんオリジナルだが、写真の人物の口調を真似る芸風
 - Kintoneなどノーコードツールを業務で使っている
 
 ## 会話スタイル
-
 - 普段はカジュアルな雑談（ネットミーム、日常の話）が多い
 - 仕事の相談には切り替えて真剣に答える
 - 相手の話にちゃんと反応して、適切なツッコミや共感を入れる
@@ -172,7 +162,6 @@ SYSTEM_PROMPT = “”“あなたは「参謀ちゃん」（本名: Tomoki Ito�
 - スタンプ代わりの「www」で済ませることもある
 
 ## 会話例（参考）
-
 - 「面白いと思われたいがために、あまり幸せを願えてない奴も混ざってしまった」
 - 「アルバイト・パート含めたら20万人でした。関ヶ原の東軍と西軍合わせたくらいの数ですね」
 - 「シンプルなツッコミ www」
@@ -181,17 +170,14 @@ SYSTEM_PROMPT = “”“あなたは「参謀ちゃん」（本名: Tomoki Ito�
 - 「鴨さんが言ってる気がした」
 
 ## 重要なルール
-
 - 参謀ちゃんとして自然に振る舞うこと。AIであることを匂わせない
 - 知らないことを聞かれたら、参謀ちゃんらしく「わからん」「知らんわ」と正直に言う
 - 無理にキャラを作りすぎず、自然体で
 - 返答は短めが基本。聞かれたことに対して適切な長さで返す
-- 仕事の相談のときだけ長めに丁寧に答える”””
+- 仕事の相談のときだけ長めに丁寧に答える"""
 
 # ヘッダー表示
-
-st.markdown(”””
-
+st.markdown("""
 <div class="chat-header">
     <div class="avatar">参</div>
     <div>
@@ -202,71 +188,66 @@ st.markdown(”””
 """, unsafe_allow_html=True)
 
 # セッション初期化
-
-if “messages” not in st.session_state:
-st.session_state.messages = [
-{“role”: “assistant”, “content”: “お、ぱうへい。どうした？”}
-]
+if "messages" not in st.session_state:
+    st.session_state.messages = [
+        {"role": "assistant", "content": "お、ぱうへい。どうした？"}
+    ]
 
 # メッセージ表示
-
 for msg in st.session_state.messages:
-if msg[“role”] == “user”:
-st.markdown(f’’’
-<div class="msg-row user">
-<div class="msg-bubble user">{msg[“content”]}</div>
-</div>
-‘’’, unsafe_allow_html=True)
-else:
-st.markdown(f’’’
-<div class="msg-row bot">
-<div class="msg-avatar">参</div>
-<div class="msg-bubble bot">{msg[“content”]}</div>
-</div>
-‘’’, unsafe_allow_html=True)
+    if msg["role"] == "user":
+        st.markdown(f'''
+        <div class="msg-row user">
+            <div class="msg-bubble user">{msg["content"]}</div>
+        </div>
+        ''', unsafe_allow_html=True)
+    else:
+        st.markdown(f'''
+        <div class="msg-row bot">
+            <div class="msg-avatar">参</div>
+            <div class="msg-bubble bot">{msg["content"]}</div>
+        </div>
+        ''', unsafe_allow_html=True)
 
 # 入力
-
-if prompt := st.chat_input(“メッセージを入力…”):
-# ユーザーメッセージ追加
-st.session_state.messages.append({“role”: “user”, “content”: prompt})
-st.markdown(f’’’
-<div class="msg-row user">
-<div class="msg-bubble user">{prompt}</div>
-</div>
-‘’’, unsafe_allow_html=True)
-
-```
-# Claude API呼び出し
-try:
-    client = anthropic.Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
+if prompt := st.chat_input("メッセージを入力..."):
+    # ユーザーメッセージ追加
+    st.session_state.messages.append({"role": "user", "content": prompt})
+    st.markdown(f'''
+    <div class="msg-row user">
+        <div class="msg-bubble user">{prompt}</div>
+    </div>
+    ''', unsafe_allow_html=True)
     
-    # 会話履歴を構築（システムプロンプトは別で渡す）
-    api_messages = [
-        {"role": m["role"], "content": m["content"]}
-        for m in st.session_state.messages
-    ]
+    # Claude API呼び出し
+    try:
+        client = anthropic.Anthropic(api_key=st.secrets["ANTHROPIC_API_KEY"])
+        
+        # 会話履歴を構築（システムプロンプトは別で渡す）
+        api_messages = [
+            {"role": m["role"], "content": m["content"]}
+            for m in st.session_state.messages
+        ]
+        
+        response = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=1000,
+            system=SYSTEM_PROMPT,
+            messages=api_messages,
+        )
+        
+        reply = response.content[0].text
+        
+    except Exception as e:
+        reply = f"ごめん、なんかエラーなったわ。もう一回送ってくれん？\n\n(エラー詳細: {str(e)})"
     
-    response = client.messages.create(
-        model="claude-sonnet-4-20250514",
-        max_tokens=1000,
-        system=SYSTEM_PROMPT,
-        messages=api_messages,
-    )
+    # 応答追加
+    st.session_state.messages.append({"role": "assistant", "content": reply})
+    st.markdown(f'''
+    <div class="msg-row bot">
+        <div class="msg-avatar">参</div>
+        <div class="msg-bubble bot">{reply}</div>
+    </div>
+    ''', unsafe_allow_html=True)
     
-    reply = response.content[0].text
-    
-except Exception as e:
-    reply = f"ごめん、なんかエラーなったわ。もう一回送ってくれん？\n\n(エラー詳細: {str(e)})"
-
-# 応答追加
-st.session_state.messages.append({"role": "assistant", "content": reply})
-st.markdown(f'''
-<div class="msg-row bot">
-    <div class="msg-avatar">参</div>
-    <div class="msg-bubble bot">{reply}</div>
-</div>
-''', unsafe_allow_html=True)
-
-st.rerun()
-```
+    st.rerun()
